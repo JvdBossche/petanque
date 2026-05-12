@@ -1,6 +1,7 @@
 from __future__ import annotations
 import random
 import re
+from platformdirs import user_data_dir
 from pathlib import Path
 
 import flet as ft
@@ -10,8 +11,10 @@ from .storage import load_tournament, save_tournament, save_team_templates, load
 from .tournament import PairingError, Tournament
 
 
-DATA_DIR = Path("tournaments")
-DATA_DIR.mkdir(exist_ok=True)
+APP_NAME = "PetanqueTournamentManager"
+APP_AUTHOR = "JvdBossche"
+DATA_DIR = Path(user_data_dir(APP_NAME, APP_AUTHOR))
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 TEMPLATES_FILE = DATA_DIR / "team_templates.json"
 
 
