@@ -5,7 +5,7 @@ description = "Petanque tournament manager with Flet GUI"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "flet>=0.10.0"
+    "flet>=0.10.0",
     "platformdirs>=3.0"
 ]
 
