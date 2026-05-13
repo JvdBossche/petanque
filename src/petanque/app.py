@@ -29,9 +29,6 @@ class PetanqueApp:
         self.tournament: Tournament | None = None
         self.save_path: Path | None = None
         self.current_round_fields: list[tuple[ft.TextField, ft.TextField, int, int]] = []
-        self.open_file_picker = ft.FilePicker(on_upload=self.on_open_file_result)
-        #self.page.overlay.append(self.open_file_picker)
-        #The FilePicker control is added and removed in the open_load_dialog method to avoid leaving the file picker in the overlay after loading a tournament
 
         self.page.title = "Petanque Tournament Manager"
         self.page.vertical_alignment = ft.MainAxisAlignment.START
@@ -397,8 +394,16 @@ class PetanqueApp:
             self.show_ranking_view()
             return
 
-        random.shuffle(top4)
-        semi_round = self.tournament.create_round(self.tournament.settings.rounds + 1, stage="semi")
+        top4_numbers = [team.number for team in top4]
+        random.shuffle(top4_numbers)
+        semi_round = Round(
+            number=self.tournament.settings.rounds + 1,
+            stage="semi",
+            games=[
+                Game(team1_number=top4_numbers[0], team2_number=top4_numbers[3], stage="semi"),
+                Game(team1_number=top4_numbers[1], team2_number=top4_numbers[2], stage="semi"),
+            ],
+        )
         self.tournament.add_round(semi_round)
         self.show_semifinal_view()
 
@@ -613,24 +618,21 @@ class PetanqueApp:
         self.page.update()
 
     async def open_load_dialog(self, event: ft.Event[ft.Button]) -> None:
-        self.page.overlay.append(self.open_file_picker)
-        await self.open_file_picker.pick_files()
-        # Note: We'll remove the picker from the overlay in the callback to avoid leaving it in the overlay
-
-    def on_open_file_result(self, event: ft.FilePickerUploadEvent) -> None:
-        files = getattr(event, "files", [])
+        files = await ft.FilePicker().pick_files()
         if not files:
             return
-        path = Path(files[0].path)
+        
+        file_path = files[0].path
+        if not file_path:
+            return
+        
+        path = Path(file_path)
         try:
             self.tournament = load_tournament(path)
             self.save_path = path
             self.show_team_editor_view()
         except Exception as exc:
             self.show_start_view(f"Failed to load tournament: {exc}")
-        if self.open_file_picker in self.page.overlay:
-            self.page.overlay.remove(self.open_file_picker)
-
 
 def main(page: ft.Page) -> None:
     PetanqueApp(page)
