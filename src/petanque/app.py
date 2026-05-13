@@ -30,7 +30,8 @@ class PetanqueApp:
         self.save_path: Path | None = None
         self.current_round_fields: list[tuple[ft.TextField, ft.TextField, int, int]] = []
         self.open_file_picker = ft.FilePicker(on_upload=self.on_open_file_result)
-        self.page.overlay.append(self.open_file_picker)
+        #self.page.overlay.append(self.open_file_picker)
+        #The FilePicker control is added and removed in the open_load_dialog method to avoid leaving the file picker in the overlay after loading a tournament
 
         self.page.title = "Petanque Tournament Manager"
         self.page.vertical_alignment = ft.MainAxisAlignment.START
@@ -47,6 +48,8 @@ class PetanqueApp:
         dialog = getattr(self.page, "dialog", None)
         if dialog:
             dialog.open = False
+            if dialog in self.page.overlay:
+                self.page.overlay.remove(dialog)
             self.page.update()
 
     def show_start_view(self, message: str | None = None) -> None:
@@ -72,7 +75,7 @@ class PetanqueApp:
 
         row_controls: list[ft.Control] = [self.name_field, self.rounds_field, self.max_round_points_field, self.max_final_points_field]
         button_controls: list[ft.Control] = [
-            ft.ElevatedButton("Create tournament", on_click=self.create_tournament),
+            ft.Button("Create tournament", on_click=self.create_tournament, elevation=3),
             ft.TextButton("Back", on_click=lambda _: self.show_start_view()),
         ]
         controls: list[ft.Control] = [
@@ -113,11 +116,11 @@ class PetanqueApp:
         self.update_team_list()
 
         action_controls: list[ft.Control] = [
-            ft.ElevatedButton("Add team", on_click=self.open_add_team_dialog),
-            ft.ElevatedButton("Save teams as templates", on_click=self.save_current_teams_as_templates),
-            ft.ElevatedButton("Load from templates", on_click=self.show_team_templates_view),
-            ft.ElevatedButton("Save tournament", on_click=self.save_current_tournament),
-            ft.ElevatedButton("Begin rounds", on_click=self.start_rounds, disabled=self.tournament.has_odd_team_count() or len(self.tournament.teams) < 2),
+            ft.Button("Add team", on_click=self.open_add_team_dialog, elevation=3),
+            ft.Button("Save teams as templates", on_click=self.save_current_teams_as_templates, elevation=3),
+            ft.Button("Load from templates", on_click=self.show_team_templates_view, elevation=3),
+            ft.Button("Save tournament", on_click=self.save_current_tournament, elevation=3),
+            ft.Button("Begin rounds", on_click=self.start_rounds, disabled=self.tournament.has_odd_team_count() or len(self.tournament.teams) < 2, elevation=3),
             ft.TextButton("Back to start", on_click=lambda _: self.show_start_view()),
         ]
         action_row = ft.Row(action_controls, spacing=12, wrap=True)
@@ -157,10 +160,11 @@ class PetanqueApp:
             ),
             actions=[
                 ft.TextButton("Cancel", on_click=lambda _: self.close_dialog()),
-                ft.ElevatedButton("Add team", on_click=self.add_team),
+                ft.Button("Add team", on_click=self.add_team, elevation=3),
             ],
             on_dismiss=lambda _: None,
         )
+        self.page.overlay.append(self.add_team_dialog)
         setattr(self.page, "dialog", self.add_team_dialog)
         self.add_team_dialog.open = True
         self.page.update()
@@ -237,7 +241,7 @@ class PetanqueApp:
                     ft.Row(
                         [
                             ft.Text(f"{template.name}: {', '.join(player.name for player in template.players)}", expand=True),
-                            ft.ElevatedButton("Add to tournament", on_click=lambda e, team=template: self.add_template_team(team)),
+                            ft.Button("Add to tournament", on_click=lambda e, team=template: self.add_template_team(team), elevation=3),
                         ],
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     )
@@ -310,8 +314,8 @@ class PetanqueApp:
             )
 
         round_actions: list[ft.Control] = [
-            ft.ElevatedButton("Save scores", on_click=self.save_round_scores),
-            ft.ElevatedButton("Save tournament", on_click=self.save_current_tournament),
+            ft.Button("Save scores", on_click=self.save_round_scores, elevation=3),
+            ft.Button("Save tournament", on_click=self.save_current_tournament, elevation=3),
             ft.TextButton("Back to teams", on_click=lambda _: self.show_team_editor_view()),
         ]
         self.page.add(
@@ -372,8 +376,8 @@ class PetanqueApp:
             )
 
         ranking_actions: list[ft.Control] = [
-            ft.ElevatedButton("Start semifinals", on_click=self.start_semifinals, disabled=len(self.tournament.teams) < 4),
-            ft.ElevatedButton("Save tournament", on_click=self.save_current_tournament),
+            ft.Button("Start semifinals", on_click=self.start_semifinals, disabled=len(self.tournament.teams) < 4, elevation=3),
+            ft.Button("Save tournament", on_click=self.save_current_tournament, elevation=3),
             ft.TextButton("Back to teams", on_click=lambda _: self.show_team_editor_view()),
         ]
         action_row = ft.Row(ranking_actions, spacing=12)
@@ -420,8 +424,8 @@ class PetanqueApp:
             games_controls.append(ft.Row([ft.Text(f"{team1.name} vs {team2.name}", expand=True), score1_field, ft.Text("-"), score2_field], alignment=ft.MainAxisAlignment.SPACE_BETWEEN))
 
         semifinal_actions: list[ft.Control] = [
-            ft.ElevatedButton("Save semifinals", on_click=self.save_semifinal_scores),
-            ft.ElevatedButton("Save tournament", on_click=self.save_current_tournament),
+            ft.Button("Save semifinals", on_click=self.save_semifinal_scores, elevation=3),
+            ft.Button("Save tournament", on_click=self.save_current_tournament, elevation=3),
             ft.TextButton("Back to rankings", on_click=lambda _: self.show_ranking_view()),
         ]
         self.page.add(
@@ -514,8 +518,8 @@ class PetanqueApp:
             games_controls.append(ft.Row([ft.Text(f"{team1.name} vs {team2.name}", expand=True), score1_field, ft.Text("-"), score2_field], alignment=ft.MainAxisAlignment.SPACE_BETWEEN))
 
         final_actions: list[ft.Control] = [
-            ft.ElevatedButton("Save finals", on_click=self.save_final_scores),
-            ft.ElevatedButton("Save tournament", on_click=self.save_current_tournament),
+            ft.Button("Save finals", on_click=self.save_final_scores, elevation=3),
+            ft.Button("Save tournament", on_click=self.save_current_tournament, elevation=3),
             ft.TextButton("Back to semifinals", on_click=lambda _: self.show_semifinal_view()),
         ]
         self.page.add(
@@ -581,7 +585,7 @@ class PetanqueApp:
             winners.append(f"{team1.name} vs {team2.name} -> Winner: {winner}")
 
         summary_actions: list[ft.Control] = [
-            ft.ElevatedButton("Save tournament", on_click=self.save_current_tournament),
+            ft.Button("Save tournament", on_click=self.save_current_tournament, elevation=3),
             ft.TextButton("Back to start", on_click=lambda _: self.show_start_view()),
         ]
         self.page.add(
@@ -609,7 +613,9 @@ class PetanqueApp:
         self.page.update()
 
     async def open_load_dialog(self, event: ft.Event[ft.Button]) -> None:
+        self.page.overlay.append(self.open_file_picker)
         await self.open_file_picker.pick_files()
+        # Note: We'll remove the picker from the overlay in the callback to avoid leaving it in the overlay
 
     def on_open_file_result(self, event: ft.FilePickerUploadEvent) -> None:
         files = getattr(event, "files", [])
@@ -622,6 +628,8 @@ class PetanqueApp:
             self.show_team_editor_view()
         except Exception as exc:
             self.show_start_view(f"Failed to load tournament: {exc}")
+        if self.open_file_picker in self.page.overlay:
+            self.page.overlay.remove(self.open_file_picker)
 
 
 def main(page: ft.Page) -> None:
