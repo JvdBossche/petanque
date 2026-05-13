@@ -56,8 +56,8 @@ class PetanqueApp:
             "Create tournaments, add teams, record scores, and continue later.",
             theme_style=ft.TextThemeStyle.BODY_LARGE,
         )
-        controls: list[ft.Control] = [header, subtitle, ft.ElevatedButton("Create new tournament", on_click=self.show_new_tournament_view)]
-        controls.append(ft.ElevatedButton("Load existing tournament", on_click=self.open_load_dialog))
+        controls: list[ft.Control] = [header, subtitle, ft.Button("Create new tournament", on_click=self.show_new_tournament_view, elevation=3)]
+        controls.append(ft.Button("Load existing tournament", on_click=self.open_load_dialog, elevation=3))
         if message:
             controls.append(ft.Text(message, color=ft.Colors.RED))
         self.page.add(ft.Column(controls, spacing=18, horizontal_alignment=ft.CrossAxisAlignment.START))

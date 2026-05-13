@@ -5,7 +5,11 @@
       "name": "Petanque App",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/src/petanque/app.py",
+      "module": "petanque.app",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src"
+      },
       "console": "integratedTerminal"
     }
   ]
